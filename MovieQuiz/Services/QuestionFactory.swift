@@ -1,11 +1,9 @@
 import UIKit
 
-class QuestionFactory: QuestionFactoryProtocol {
+final class QuestionFactory: QuestionFactoryProtocol {
     
     weak var delegate: QuestionFactoryDelegate?
-    func setup(delegate: QuestionFactoryDelegate) {
-        self.delegate = delegate
-    }
+    private var askedQuestions: Set<Int> = Set()
     
     private let questions: [QuizQuestion] = [
         QuizQuestion(
@@ -51,12 +49,22 @@ class QuestionFactory: QuestionFactoryProtocol {
     ]
     
     func requestNextQuestion() {
-        guard let index = (0..<questions.count).randomElement() else {
-            delegate?.didReceieveNextQuestion(question: nil)
-            return
+            guard questions.count > 0 else {
+                delegate?.didReceiveNextQuestion(question: nil)
+                return
+            }
+            var randomIndex: Int
+
+            repeat {
+                randomIndex = Int.random(in: 0..<questions.count)
+            } while askedQuestions.contains(randomIndex)
+
+            let question = questions[safe: randomIndex]
+            askedQuestions.insert(randomIndex)
+            delegate?.didReceiveNextQuestion(question: question)
         }
-        let question = questions[safe: index]
-        delegate?.didReceieveNextQuestion(question: question)
+
+    func resetState() {
+            askedQuestions.removeAll()
     }
-    
 }
