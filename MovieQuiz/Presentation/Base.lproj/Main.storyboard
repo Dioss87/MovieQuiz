@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22684"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -113,6 +113,9 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="ccJ-P9-KGH">
+                                <rect key="frame" x="0.0" y="0.0" width="412.66666666666663" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
@@ -120,10 +123,13 @@
                             <constraint firstItem="cOZ-aD-0Pp" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="2E2-QO-jdz"/>
                             <constraint firstItem="cOZ-aD-0Pp" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="OTI-cF-nt8"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="cOZ-aD-0Pp" secondAttribute="bottom" id="Ub7-Mj-ihE"/>
+                            <constraint firstItem="ccJ-P9-KGH" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="hla-WW-lKp"/>
+                            <constraint firstItem="ccJ-P9-KGH" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="p5S-wT-sPb"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="cOZ-aD-0Pp" secondAttribute="trailing" constant="20" id="wgq-Lg-ABs"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="ccJ-P9-KGH" id="hdw-2F-2Gb"/>
                         <outlet property="counterLabel" destination="UMW-gl-CEw" id="eIQ-KC-kuD"/>
                         <outlet property="imageView" destination="XwF-9d-huM" id="818-2L-Rwk"/>
                         <outlet property="noButton" destination="UVB-q4-oqL" id="hpB-Nn-C0n"/>
@@ -133,7 +139,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-55.072463768115945" y="55.580357142857139"/>
+            <point key="canvasLocation" x="-55.38461538461538" y="55.45023696682464"/>
         </scene>
     </scenes>
     <resources>

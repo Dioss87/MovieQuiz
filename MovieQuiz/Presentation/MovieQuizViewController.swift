@@ -9,7 +9,9 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private var counterLabel: UILabel!
     @IBOutlet private var noButton: UIButton!
     @IBOutlet private var yesButton: UIButton!
+    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
+    private var moviesLoader: MoviesLoading?
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var isAlertPresented = false
@@ -42,33 +44,19 @@ final class MovieQuizViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-              imageView.layer.cornerRadius = 15
-              
-              let questionFactory = QuestionFactory()
-              questionFactory.delegate = self
-              self.questionFactory = questionFactory
-              questionFactory.requestNextQuestion()
-              statisticService = StatisticServiceImplementation()
-              alertPresenter.delegate = self
-    }
-    
-    // MARK: - Methods
-    private func showAlert(with result: QuizResultsViewModel) {
-        guard !isAlertPresented else { return }
-        isAlertPresented = true
+        imageView.layer.cornerRadius = 15
+        activityIndicator.hidesWhenStopped = true
         
-        let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
-        let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            self.isAlertPresented = false
+        let moviesLoader = MoviesLoader()
+        questionFactory = QuestionFactory(delegate: self, moviesLoader: moviesLoader) { [weak self] _ in
+            guard let self else { return }
+            self.showError(message: "Не удалось загрузить изображение")
         }
-        alert.addAction(action)
-        self.present(alert, animated: true)
-        let questionFactory = QuestionFactory()
-        questionFactory.delegate = self
-        self.questionFactory = questionFactory
-        questionFactory.requestNextQuestion()
+        
+//        self.questionFactory = questionFactory
+        activityIndicator.startAnimating()
+        questionFactory!.loadData()
+        
         statisticService = StatisticServiceImplementation()
         alertPresenter.delegate = self
     }
@@ -76,15 +64,15 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Methods
     private func compare(givenAnswer: Bool) {
         guard let currentQuestion = currentQuestion else { return }
-                showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-                
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                guard let self = self else { return }
-                self.imageView.layer.borderWidth = 0
-                self.showNextQuestionOrResults()
-                yesButton.isEnabled = true
-                noButton.isEnabled = true
-                }
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            guard let self = self else { return }
+            self.imageView.layer.borderWidth = 0
+            self.showNextQuestionOrResults()
+            self.yesButton.isEnabled = true
+            self.noButton.isEnabled = true
+        }
     }
     
     private func showAnswerResult(isCorrect: Bool) {
@@ -100,21 +88,22 @@ final class MovieQuizViewController: UIViewController {
     
     private func showNextQuestionOrResults() {
         guard let statisticService = statisticService else { return }
-                
-                if currentQuestionIndex == questionsAmount - 1 {
-                    statisticService.store(correct: correctAnswers, total: questionsAmount)
-                    let bestGame = statisticService.bestGame
-                    let message = "Ваш результат: \(correctAnswers)/\(questionsAmount)\nКоличество сыгранных квизов: \(statisticService.gamesCount)\nРекорд: \(bestGame.correct)/\(questionsAmount) (\(bestGame.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
-                    let statistic = AlertModel(title: "Этот раунд окончен!",
-                                               message: message,
-                                               buttonText: "Сыграть еще раз") {
-                                               self.restartQuiz()
-                                               }
-                    alertPresenter.showAlert(with: statistic)
-                } else {
-                    currentQuestionIndex += 1
-                    questionFactory?.requestNextQuestion()
-                }
+        
+        if currentQuestionIndex == questionsAmount - 1 {
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
+            let bestGame = statisticService.bestGame
+            let message = "Ваш результат: \(correctAnswers)/\(questionsAmount)\nКоличество сыгранных квизов: \(statisticService.gamesCount)\nРекорд: \(bestGame.correct)/\(questionsAmount) (\(bestGame.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+            let statistic = AlertModel(title: "Этот раунд окончен!",
+                                       message: message,
+                                       buttonText: "Сыграть еще раз") { [weak self] in
+                guard let self else { return }
+                self.restartQuiz()
+            }
+            alertPresenter.showAlert(with: statistic)
+        } else {
+            currentQuestionIndex += 1
+            questionFactory?.requestNextQuestion()
+        }
     }
     
     private func restartQuiz() {
@@ -129,25 +118,71 @@ final class MovieQuizViewController: UIViewController {
         imageView.image = step.image
         textLabel.text = step.question
     }
-}
-
-extension MovieQuizViewController: QuestionFactoryDelegate {
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else { return }
-        currentQuestion = question
-        let viewModel = QuizConverter.convert(model: question,
-                                              currentIndex: currentQuestionIndex + 1,
-                                              totalCount: questionsAmount)
+    
+    private func showError(message: String) {
         DispatchQueue.main.async {
-            self.show(quiz: viewModel)
+            self.activityIndicator.stopAnimating()
+            let model = AlertModel(title: "Ошибка", message: message, buttonText: "Попробовать еще раз?") { [weak self] in
+                guard let self = self else { return }
+                self.activityIndicator.startAnimating()
+                self.moviesLoader?.loadMovies { result in
+                    switch result {
+                    case .success(_):
+                        self.restartQuiz()
+                    case .failure(let error):
+                        self.showError(message: error.localizedDescription)
+                    }
+                }
+            }
+            self.alertPresenter.showAlert(with: model)
         }
     }
 }
-
-extension MovieQuizViewController: AlertPresenterDelegate {
-    func presentAlert(_ alert: UIAlertController) {
-        DispatchQueue.main.async {
-            self.present(alert, animated: true)
+        
+    // MARK: - QuestionFactoryDelegate
+    extension MovieQuizViewController: QuestionFactoryDelegate {
+        func didLoadDataFromServer() {
+            activityIndicator.startAnimating()
+            questionFactory?.requestNextQuestion()
+        }
+        
+        func didFailToLoadData(with error: Error) {
+            var errorMessage = "Произошла ошибка при загрузке данных"
+            
+            if let networkError = error as? NetworkError {
+                switch networkError {
+                case .noInternetConnection:
+                    errorMessage = "Отсутствует подключение к интернету"
+                case .requestTimedOut:
+                    errorMessage = "Превышено время ожидания ответа от сервера"
+                case .emptyData:
+                    errorMessage = "Данные не были получены"
+                case .tooManyRequests:
+                    errorMessage = "Вы превысили лимит запросов к API. Попробуйте снова позже."
+                case .unknownError:
+                    errorMessage = "Неизвестная ошибка"
+                }
+            }
+            showError(message: errorMessage)
+        }
+        
+        func didReceiveNextQuestion(question: QuizQuestion?) {
+            guard let question = question else { return }
+            currentQuestion = question
+            let viewModel = QuizConverter.convert(model: question,
+                                                  currentIndex: currentQuestionIndex + 1,
+                                                  totalCount: questionsAmount)
+            DispatchQueue.main.async {
+                self.show(quiz: viewModel)
+                self.activityIndicator.stopAnimating()
+            }
         }
     }
-}
+    // MARK: - AlertPresenterDelegate
+    extension MovieQuizViewController: AlertPresenterDelegate {
+        func presentAlert(_ alert: UIAlertController) {
+            DispatchQueue.main.async {
+                self.present(alert, animated: true)
+            }
+        }
+    }

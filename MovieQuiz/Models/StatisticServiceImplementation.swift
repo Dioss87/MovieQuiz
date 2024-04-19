@@ -5,11 +5,11 @@ private enum Keys: String {
 }
 
 final class StatisticServiceImplementation: StatisticServiceProtocol {
-
+    
     private let userDefaults = UserDefaults.standard
     private var totalCorrectAnswers = 0
     private var totalQuestionsAnswered: Int = 0
-
+    
     
     var gamesCount: Int {
         get {
@@ -19,7 +19,7 @@ final class StatisticServiceImplementation: StatisticServiceProtocol {
             userDefaults.set(newValue, forKey: Keys.gamesCount.rawValue)
         }
     }
-
+    
     var bestGame: GameRecord {
         get {
             guard let data = userDefaults.data(forKey: Keys.bestGame.rawValue),
@@ -45,11 +45,11 @@ final class StatisticServiceImplementation: StatisticServiceProtocol {
             return Double(totalCorrectAnswers) / Double(totalQuestionsAnswered) * 100
         }
     }
-
+    
     func store(correct count: Int, total amount: Int) {
         var currentBestRecord = bestGame
         let newRecord = GameRecord(correct: count, total: amount, date: Date())
-
+        
         if newRecord.isCurrent(currentBestRecord) {
             currentBestRecord = newRecord
             bestGame = currentBestRecord
