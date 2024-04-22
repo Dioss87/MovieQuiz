@@ -23,16 +23,14 @@ final class MovieQuizViewController: UIViewController {
     private var questions: [QuizQuestion] = []
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {return}
-        let givenAnswer = false
+        changeStateButton(isEnabled: false)
         noButton.isEnabled = false
         compare(givenAnswer: false)
         
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else {return}
-        let givenAnswer = true
+        changeStateButton(isEnabled: false)
         yesButton.isEnabled = false
         compare(givenAnswer: true)
         
@@ -53,15 +51,19 @@ final class MovieQuizViewController: UIViewController {
             self.showError(message: "Не удалось загрузить изображение")
         }
         
-//        self.questionFactory = questionFactory
+
         activityIndicator.startAnimating()
-        questionFactory!.loadData()
+        questionFactory?.loadData()
         
         statisticService = StatisticServiceImplementation()
         alertPresenter.delegate = self
     }
     
-    // MARK: - Methods
+    private func changeStateButton(isEnabled: Bool) {
+        noButton.isEnabled = isEnabled
+        yesButton.isEnabled = isEnabled
+    }
+    
     private func compare(givenAnswer: Bool) {
         guard let currentQuestion = currentQuestion else { return }
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
@@ -70,8 +72,7 @@ final class MovieQuizViewController: UIViewController {
             guard let self = self else { return }
             self.imageView.layer.borderWidth = 0
             self.showNextQuestionOrResults()
-            self.yesButton.isEnabled = true
-            self.noButton.isEnabled = true
+            changeStateButton(isEnabled: true)
         }
     }
     
@@ -139,7 +140,7 @@ final class MovieQuizViewController: UIViewController {
     }
 }
         
-    // MARK: - QuestionFactoryDelegate
+    
     extension MovieQuizViewController: QuestionFactoryDelegate {
         func didLoadDataFromServer() {
             activityIndicator.startAnimating()
@@ -178,11 +179,13 @@ final class MovieQuizViewController: UIViewController {
             }
         }
     }
-    // MARK: - AlertPresenterDelegate
+
     extension MovieQuizViewController: AlertPresenterDelegate {
         func presentAlert(_ alert: UIAlertController) {
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else {return}
                 self.present(alert, animated: true)
             }
         }
     }
+
