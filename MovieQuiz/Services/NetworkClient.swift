@@ -1,5 +1,9 @@
 import UIKit
 
+protocol NetworkRouting {
+    func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void)
+}
+
 enum NetworkError: Error {
      case noInternetConnection
      case requestTimedOut
@@ -8,7 +12,7 @@ enum NetworkError: Error {
      case unknownError
 }
 
-struct NetworkClient {
+struct NetworkClient: NetworkRouting {
     
     func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
             let request = URLRequest(url: url)

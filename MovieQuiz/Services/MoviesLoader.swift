@@ -2,10 +2,13 @@ import UIKit
 
 struct MoviesLoader: MoviesLoading {
     
-    private let networkClient = NetworkClient()
+    private let networkClient: NetworkRouting
     private let imdbURL = "https://tv-api.com/en/API/Top250Movies/"
     private let apiKeys = "k_zcuw1ytf"
     
+    init(networkClient: NetworkRouting = NetworkClient()) {
+        self.networkClient = networkClient
+    }
     
     private var mostPopularMoviesUrl: URL {
         guard let url = URL(string: imdbURL + apiKeys) else {
