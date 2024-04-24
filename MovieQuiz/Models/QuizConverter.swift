@@ -1,7 +1,7 @@
 import UIKit
 
 struct QuizConverter {
-    static func convert(model: QuizQuestion, currentIndex: Int, totalCount: Int) -> QuizStepViewModel {
+    func convert(model: QuizQuestion, currentIndex: Int, totalCount: Int) -> QuizStepViewModel {
         let image = UIImage(data: model.image)
         return QuizStepViewModel(image: image ?? UIImage(),
                                  question: model.text,
