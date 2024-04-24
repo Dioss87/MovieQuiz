@@ -1,18 +1,6 @@
 import UIKit
 
-protocol NetworkRouting {
-    func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void)
-}
-
-enum NetworkError: Error {
-     case noInternetConnection
-     case requestTimedOut
-     case emptyData
-     case tooManyRequests
-     case unknownError
-}
-
-struct NetworkClient: NetworkRouting {
+struct NetworkClient: NetworkRoutingProtocol {
     
     func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
             let request = URLRequest(url: url)
@@ -29,9 +17,11 @@ struct NetworkClient: NetworkRouting {
                         } else {
                             handler(.failure(NetworkError.emptyData))
                         }
-                    default:
-                        handler(.failure(NetworkError.unknownError))
-                    }
+                    case 503:
+                            handler(.failure(NetworkError.serviceUnavailable))
+                        default:
+                            handler(.failure(NetworkError.unknownError))
+                        }
                 } else if let error = error {
                     if let nsError = error as NSError?, nsError.code == NSURLErrorTimedOut {
                         handler(.failure(NetworkError.requestTimedOut))
