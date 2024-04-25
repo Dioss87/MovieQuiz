@@ -52,34 +52,35 @@ final class MovieQuizUITests: XCTestCase {
             XCTAssertEqual(indexLabel.label, "0/10")
         }
         
-        func testGameAlert() {
+    func testGameAlert() {
+        sleep(2)
+        for _ in 1..<10 {
+            app.buttons["Yes"].tap()
             sleep(2)
-            for _ in 0..<10 {
-                app.buttons["Yes"].tap()
-                sleep(2)
-            }
-            let gameAlert = app.alerts["GameOverAlert"]
+        }
+        let gameAlert = app.alerts["GameOverAlert"]
+        
+        XCTAssertEqual(gameAlert.label, "Этот раунд окончен!", "Некорректный заголовок")
+        XCTAssertEqual(gameAlert.buttons.firstMatch.label, "Сыграть еще раз", "Некорректный текст кнопки")
+    }
             
-            XCTAssertEqual(gameAlert.label, "Этот раунд окончен!", "Некорректный заголовок")
-            XCTAssertEqual(gameAlert.buttons.firstMatch.label, "Сыграть еще раз", "Некорректный текст кнопки")
+    func testGameAlertDismiss() {
+        sleep(2)
+        for _ in 1...10 {
+            app.buttons["No"].tap()
+            sleep(2)
         }
         
-        func testGameAlertDismiss() {
-            sleep(2)
-            for _ in 1...10 {
-                app.buttons["No"].tap()
-                sleep(2)
+        let gameAlert = app.alerts["GameOverAlert"]
+        gameAlert.buttons["Сыграть еще раз"]
+        sleep(2)
+        
+        let indexLabel = app.staticTexts["Index"]
+        
+        XCTAssertFalse(gameAlert.exists)
+        XCTAssertTrue(indexLabel.label == "1/10")
             }
-            
-            let gameAlert = app.alerts["GameOverAlert"]
-            gameAlert.buttons.firstMatch.tap()
-            sleep(2)
-            
-            let indexLabel = app.staticTexts["Index"]
-            
-            XCTAssertFalse(gameAlert.exists)
-            XCTAssertTrue(indexLabel.label == "0/10")
-        }
+
         
         func testQuestionLabel() {
             let questionLabel = app.staticTexts["Question"]
