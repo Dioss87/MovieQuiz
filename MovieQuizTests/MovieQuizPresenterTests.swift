@@ -42,7 +42,7 @@ final class MovieQuizPresenterTests: XCTestCase {
         
         XCTAssertNotNil(viewModel.image)
         XCTAssertEqual(viewModel.question, "Question Text")
-        XCTAssertEqual(viewModel.questionNumber, "1/10")
+        XCTAssertEqual(viewModel.questionNumber, "0/10")
     }
     
     func testPresenterCompareWithCorrectAnswer() throws {
