@@ -11,7 +11,7 @@ final class MovieQuizPresenter: QuizPresenterProtocol {
     private var moviesLoader: MoviesLoading?
     
     let questionsAmount = 10
-    var currentQuestionIndex = 0
+    var currentQuestionIndex = 1
     var correctAnswers = 0
     var currentQuestion: QuizQuestion?
     
