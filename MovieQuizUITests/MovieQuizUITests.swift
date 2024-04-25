@@ -51,61 +51,7 @@ final class MovieQuizUITests: XCTestCase {
             let indexLabel = app.staticTexts["Index"]
             XCTAssertEqual(indexLabel.label, "1/10")
         }
-        
-    func testGameAlert() {
-        sleep(2)
-        for _ in 1..<10 {
-            app.buttons["Yes"].tap()
-            sleep(2)
-<<<<<<< HEAD
-        }
-        let gameAlert = app.alerts["GameOverAlert"]
-        
-        XCTAssertEqual(gameAlert.label, "Этот раунд окончен!", "Некорректный заголовок")
-        XCTAssertEqual(gameAlert.buttons.firstMatch.label, "Сыграть еще раз", "Некорректный текст кнопки")
-    }
-            
-    func testGameAlertDismiss() {
-        sleep(2)
-        for _ in 1...10 {
-            app.buttons["No"].tap()
-            sleep(2)
-=======
-            for _ in 1..<10 {
-                app.buttons["Yes"].tap()
-                sleep(2)
-            }
-            let gameAlert = app.alerts["GameOverAlert"]
-            
-            XCTAssertEqual(gameAlert.label, "Этот раунд окончен!", "Некорректный заголовок")
-            XCTAssertEqual(gameAlert.buttons.firstMatch.label, "Сыграть еще раз")
->>>>>>> 9c2bb22c090e59f7d43e20f8e5a40586af54815d
-        }
-        
-        let gameAlert = app.alerts["GameOverAlert"]
-        gameAlert.buttons["Сыграть еще раз"]
-        sleep(2)
-        
-        let indexLabel = app.staticTexts["Index"]
-        
-        XCTAssertFalse(gameAlert.exists)
-        XCTAssertTrue(indexLabel.label == "1/10")
-            }
-<<<<<<< HEAD
-
-=======
-            
-            let gameAlert = app.alerts["GameOverAlert"]
-            gameAlert.buttons["Сыграть еще раз"]
-            sleep(2)
-            
-            let indexLabel = app.staticTexts["Index"]
-            
-            XCTAssertFalse(gameAlert.exists)
-            XCTAssertTrue(indexLabel.label == "1/10")
-        }
->>>>>>> 9c2bb22c090e59f7d43e20f8e5a40586af54815d
-        
+    
         func testQuestionLabel() {
             let questionLabel = app.staticTexts["Question"]
             XCTAssertTrue(questionLabel.waitForExistence(timeout: 5), "Лейбл не появился")
